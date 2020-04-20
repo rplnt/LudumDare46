@@ -7,15 +7,15 @@ public class FireStarter : MonoBehaviour {
 
     private Collider[] neighbours;
 
-    float cutOffAngle = 15.0f;
-    float maxSpread = 10.0f;
+    float cutOffAngle = 20.0f;
+    float maxSpread = 20.0f;
 
     Burner burner;
 
     private void Start() {
         burner = GetComponent<Burner>();
         if (burner == null) Debug.LogError(this.name + ": Missing burner");
-        neighbours = new Collider[20];
+        neighbours = new Collider[30];
     }
 
     private void Update() {
@@ -41,14 +41,14 @@ public class FireStarter : MonoBehaviour {
             targetDir2d = new Vector2(dir.x, dir.z);
             windDir2d = new Vector2(burner.wind.Direction.x, burner.wind.Direction.z);
             
-            angle = Vector2.Angle(windDir2d, targetDir2d);
-            if (angle > cutOffAngle) continue;
-
             dist = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(c.transform.position.x, c.transform.position.z));
 
-            heat = dist * burner.wind.Power * Time.deltaTime;
+            angle = Vector2.Angle(windDir2d, targetDir2d);
+            if (dist > 1.0f && angle > cutOffAngle) continue;
 
-            //Debug.Log(c.name + ": Distance:" + Vector3.Distance(transform.position, c.transform.position) + " Angle:" + angle);
+            heat = (1.0f / (dist * dist)) * burner.wind.Power * Time.deltaTime;
+            //Debug.Log(heat + " from " + transform.name + " from " + dist + " away to " + c.name + "(wind powe: " + burner.wind.Power + ")");
+
             c.SendMessage("AddHeat", heat, SendMessageOptions.DontRequireReceiver);
         }
     }
